@@ -3,7 +3,8 @@ import cv2
 import numpy as np
 import pytesseract
 import os
-
+from concurrent.futures import ThreadPoolExecutor
+import time
 IPHONE_WIDTH = 265
 BOARD_BUFFER = 50
 IPHONE_HEIGHT = 220
@@ -17,6 +18,7 @@ class BoardCV:
         self.board = []
         self.screen_width, self.screen_height = pyautogui.size()
         self.region = (self.screen_width - IPHONE_WIDTH, BUFFER_FROM_TOP, IPHONE_WIDTH - BOARD_BUFFER, IPHONE_HEIGHT)
+        self.templates = self.load_templates("/Users/colinzhu/Documents/Projects/wordhunt/board")
 
     def capture_board(self):
         # Step 1: Capture the screenshot
@@ -53,7 +55,7 @@ class BoardCV:
 
         letter = self.check_against_database(cropped_image)
         if letter:
-           return letter
+           return letter.strip()
         letter = pytesseract.image_to_string(cropped_image, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
         if letter:
@@ -61,20 +63,40 @@ class BoardCV:
             cv2.imwrite(filename, cropped_image)
         return letter.strip()
 
-    def check_against_database(self, image):
-        for filename in os.listdir("/Users/colinzhu/Documents/Projects/wordhunt/board"):
+
+    def load_templates(self, directory):
+        templates = {}
+        for filename in os.listdir(directory):
             if filename.endswith('.png'):
-                template = cv2.imread(os.path.join(SAVE_PATH, filename), cv2.IMREAD_GRAYSCALE)
-                if (image.shape[0] > template.shape[0] or image.shape[1] > template.shape[1]):
-                    resized_image = cv2.resize(image, (template.shape[1], template.shape[0]))
-                    res = cv2.matchTemplate(template, resized_image, cv2.TM_CCOEFF_NORMED)
-                else:
-                    res = cv2.matchTemplate(template, image, cv2.TM_CCOEFF_NORMED)
-                threshold = 0.9
-                loc = np.where(res >= threshold)
-                if len(loc[0]) > 0:
-                    return filename[0]
+                template = cv2.imread(os.path.join(directory, filename), cv2.IMREAD_GRAYSCALE)
+                templates[filename] = template
+        return templates
+
+    def match_template(self, image, template, filename):
+        if image.shape[0] > template.shape[0] or image.shape[1] > template.shape[1]:
+            resized_image = cv2.resize(image, (template.shape[1], template.shape[0]))
+            res = cv2.matchTemplate(template, resized_image, cv2.TM_CCOEFF_NORMED)
+        else:
+            res = cv2.matchTemplate(template, image, cv2.TM_CCOEFF_NORMED)
+        threshold = 0.9
+        loc = np.where(res >= threshold)
+        if len(loc[0]) > 0:
+            return filename
+        return None
+
+    def check_against_database(self, image):
+        for filename, template in self.templates.items():
+            if image.shape[0] > template.shape[0] or image.shape[1] > template.shape[1]:
+                resized_image = cv2.resize(image, (template.shape[1], template.shape[0]))
+                res = cv2.matchTemplate(template, resized_image, cv2.TM_CCOEFF_NORMED)
+            else:
+                res = cv2.matchTemplate(template, image, cv2.TM_CCOEFF_NORMED)
+            threshold = 0.9
+            loc = np.where(res >= threshold)
+            if len(loc[0]) > 0:
+                return filename.strip('.png')
         print("No match found")
+        return None
 
     def process_board(self):
         self.load_image()

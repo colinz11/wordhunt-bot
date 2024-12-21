@@ -14,7 +14,7 @@ class WordHunter:
         self.solutions = solutions
         self.screen_width, self.screen_height = pyautogui.size()
 
-    def move_mouse_to_path(self, delay=0, timeout=85):
+    def move_mouse_to_path(self, delay=0, timeout=80):
         """
         Move the mouse to each coordinate in the path.
         
@@ -29,7 +29,7 @@ class WordHunter:
             path = pair[1]
             # Move to the first coordinate and click mouse down
             coords = [self.convert_coord_to_pixel(coord) for coord in path]
-            pyautogui.moveTo(coords[0][0] + random.randint(-2,2), coords[0][1] + random.randint(-2,2), duration=delay)
+            pyautogui.moveTo(coords[0][0] + random.randint(-3,3), coords[0][1] + random.randint(-3,3), duration=delay)
             for coord in coords:
                 pyautogui.dragTo(coord[0], coord[1], button='left', mouseDownUp=False, duration=delay)
         
