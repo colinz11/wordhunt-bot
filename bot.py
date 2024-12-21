@@ -32,7 +32,7 @@ class WordHunter:
             pyautogui.moveTo(coords[0][0] + random.randint(-3,3), coords[0][1] + random.randint(-3,3), duration=delay)
             for coord in coords:
                 pyautogui.dragTo(coord[0], coord[1], button='left', mouseDownUp=False, duration=delay)
-        
+        pyautogui.mouseUp()
 
     def init_game(self):
         top_left_x = self.screen_width - IPHONE_WIDTH

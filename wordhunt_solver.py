@@ -1,8 +1,8 @@
 from vison import BoardCV
 from bot import WordHunter
-import os
 import pickle
 import time
+import cv2
 
 class TrieNode:
     def __init__(self):
@@ -105,7 +105,7 @@ print(boardCv.get_board())
 
 solutions = find_words(boardCv.get_board(), words)
 score = calculate_total_score(solutions)
-print(score)
+print(f'Max Score: {score}')
 wordHunter = WordHunter(solutions)
 wordHunter.move_mouse_to_path()
 

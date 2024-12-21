@@ -24,8 +24,13 @@ class BoardCV:
         # Step 1: Capture the screenshot
         screenshot = pyautogui.screenshot(region=self.region)
 
-        # Save the screenshot to the specified path
-        screenshot.save(BOARD_PATH + IMAGE_NAME)
+        # Convert the screenshot to a NumPy array
+        screenshot_np = np.array(screenshot)
+
+        # Convert the color space from RGB to BGR
+        screenshot_cv = cv2.cvtColor(screenshot_np, cv2.COLOR_RGB2BGR)
+
+        self.image = screenshot_cv
 
     def load_image(self):
         self.image = cv2.imread(BOARD_PATH + IMAGE_NAME)
@@ -99,7 +104,6 @@ class BoardCV:
         return None
 
     def process_board(self):
-        self.load_image()
         self.divide_image()
 
         for row in range(4):
