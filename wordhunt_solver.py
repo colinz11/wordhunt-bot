@@ -24,33 +24,14 @@ def read_words_from_file(file_path):
         words = [line.strip().lower() for line in file.readlines() if len(line.strip()) > 2]
     return words
 
-def letter_frequencies(letters):
-    freq = {}
-    for letter in letters:
-        freq[letter] = freq.get(letter, 0) + 1
-    return freq
 
-def can_form_word(word, letter_freq):
-    temp_freq = letter_freq.copy()
-    for char in word:
-        if char not in temp_freq or temp_freq[char] == 0:
-            return False
-        temp_freq[char] -= 1
-    return True
 
 def find_words(board, words):
     # Convert the board to lowercase
     board = [[char.lower() for char in row] for row in board]
 
-    # Generate a set of all letters available in the grid
-    available_letters = [board[i][j] for i in range(4) for j in range(4)]
-    letter_freq = letter_frequencies(available_letters)
-
-    # Filter words that can be formed using the available letters
-    possible_words = [word for word in words if can_form_word(word, letter_freq)]
-
     trie = Trie()
-    for word in possible_words:
+    for word in words:
         trie.insert(word)
 
     def dfs(node, i, j, path, current_word, coordinates):

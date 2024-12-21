@@ -55,6 +55,7 @@ class BoardCV:
         if letter:
            return letter
         letter = pytesseract.image_to_string(cropped_image, lang='eng', config='--psm 10 --oem 3 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
         if letter:
             filename = f"{SAVE_PATH}{letter}.png"
             cv2.imwrite(filename, cropped_image)
@@ -92,4 +93,3 @@ class BoardCV:
     
     def get_board(self):
         return self.board
-
