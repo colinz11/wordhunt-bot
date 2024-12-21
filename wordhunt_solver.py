@@ -1,5 +1,7 @@
 from vison import BoardCV
 from bot import WordHunter
+import os
+import pickle
 
 class TrieNode:
     def __init__(self):
@@ -18,6 +20,11 @@ class Trie:
             node = node.children[char]
         node.is_end_of_word = True
 
+    @staticmethod
+    def load(filepath):
+        with open(filepath, 'rb') as f:
+            return pickle.load(f)
+
 
 def read_words_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -30,9 +37,15 @@ def find_words(board, words):
     # Convert the board to lowercase
     board = [[char.lower() for char in row] for row in board]
 
-    trie = Trie()
-    for word in words:
-        trie.insert(word)
+
+    trie_filepath = 'trie.pkl'
+    if os.path.exists(trie_filepath):
+        trie = Trie.load(trie_filepath)
+    else:
+        trie = Trie()
+        for word in words:
+            trie.insert(word)
+        trie.save(trie_filepath)
 
     def dfs(node, i, j, path, current_word, coordinates):
         if node.is_end_of_word:
@@ -57,7 +70,7 @@ def find_words(board, words):
     return sorted(list(result), key=lambda x: len(x[0]), reverse=True)
 
 # Read words from a file
-words_file_path = 'words.txt'
+words_file_path = 'wordbank.txt'
 words = read_words_from_file(words_file_path)
 
 def calculate_total_score(words):
