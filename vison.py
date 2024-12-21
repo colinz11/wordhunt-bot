@@ -92,14 +92,4 @@ class BoardCV:
     
     def get_board(self):
         return self.board
-        
-    def parse_board(self, text):
-        lines = text.strip().split('\n')
-     
-        for line in lines:
-            # Assuming each line represents a row of the board
-            row = list(line.strip())
-            if len(row) == 4:
-                self.board.append(row)
-        return self.board
-    
+
